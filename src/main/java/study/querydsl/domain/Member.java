@@ -30,6 +30,10 @@ public class Member {
     public void changeTeam(Team team){
         if(this.team != null) this.team.getMembers().remove(this);
         this.team = team;
-        team.addMember(this);
+        team.getMembers().add(this);
+    }
+
+    public void increaseAge(int age){
+        this.age += age;
     }
 }
