@@ -26,4 +26,10 @@ public class Member {
     public void changeUsername(String username){
         this.username = username;
     }
+
+    public void changeTeam(Team team){
+        if(this.team != null) this.team.getMembers().remove(this);
+        this.team = team;
+        team.addMember(this);
+    }
 }
