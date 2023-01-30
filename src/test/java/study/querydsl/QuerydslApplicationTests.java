@@ -28,6 +28,7 @@ class QuerydslApplicationTests {
 		QHello qHello = new QHello("h");
 		Hello find = query.selectFrom(qHello).fetchOne();
 		assertThat(find).isEqualTo(hello);
+		assertThat(find.getId()).isEqualTo(hello.getId());
 	}
 
 }
