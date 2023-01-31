@@ -194,10 +194,29 @@ public class QuerydslBasicTest {
         //given
 
         //when
-        List<Member> result = query.selectFrom(member).join(member.team, team)
+        List<Member> result = query.selectFrom(member).leftJoin(member.team, team)
                 .where(team.name.eq("teamA")).fetch();
         //then
         assertThat(result.size()).isEqualTo(2);
-        assertThat(result).extracting("username").containsExactly("member1", "member2");
+        assertThat(result).extracting("username")
+                .containsExactly("member1", "member2");
+    }
+
+    @Test
+    @DisplayName("")
+    public void theta_join() throws Exception{
+        //given
+        em.persist(new Member("teamA"));
+        em.persist(new Member("teamB"));
+        em.persist(new Member("teamC"));
+        //when
+        List<Member> result = query.select(member)
+                .from(member, team)
+                .where(member.username.eq(team.name))
+                .fetch();
+        //then
+        assertThat(result)
+                .extracting("username")
+                .containsExactly("teamA", "teamB");
     }
 }
