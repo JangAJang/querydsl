@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.*;
+import static study.querydsl.domain.QMember.*;
 
 @SpringBootTest
 @Transactional
@@ -65,5 +66,19 @@ public class QuerydslBasicTest {
                 .fetchOne();
         //then
         assertThat(find.getUsername()).isEqualTo("member1");
+    }
+
+    @Test
+    @DisplayName("")
+    public void search() throws Exception{
+        //given
+
+        //when
+        Member findMember = query.selectFrom(member)
+                .where(member.age.eq(10).and(member.username.eq("member1")))
+                .fetchOne();
+        //then
+        assertThat(findMember.getUsername()).isEqualTo("member1");
+        assertThat(findMember.getAge()).isEqualTo(10);
     }
 }

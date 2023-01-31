@@ -20,7 +20,7 @@ public class QMember extends EntityPathBase<Member> {
 
     private static final PathInits INITS = PathInits.DIRECT2;
 
-    public static final QMember m1 = new QMember("member1");
+    public static final QMember member = new QMember("member1");
 
     public final NumberPath<Integer> age = createNumber("age", Integer.class);
 
