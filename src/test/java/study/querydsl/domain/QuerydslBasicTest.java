@@ -1,5 +1,6 @@
 package study.querydsl.domain;
 
+import com.querydsl.core.QueryResults;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,6 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 import static study.querydsl.domain.QMember.*;
@@ -75,10 +78,34 @@ public class QuerydslBasicTest {
 
         //when
         Member findMember = query.selectFrom(member)
-                .where(member.age.eq(10).and(member.username.eq("member1")))
+                .where(member.age.eq(10), (member.username.eq("member1")))
                 .fetchOne();
         //then
         assertThat(findMember.getUsername()).isEqualTo("member1");
         assertThat(findMember.getAge()).isEqualTo(10);
+    }
+    
+    @Test
+    @DisplayName("")        
+    public void resultFetch() throws Exception{
+        //given
+//        List<Member> fetch = query.selectFrom(member).fetch();
+//
+//        Member fetchOne = query.selectFrom(member).fetchOne();
+//
+//        Member fetchFirst = query.select(member).fetchFirst();
+
+        // 하나의 코드로 쿼리 두개가 실행된다. (전체 조회, 개수 조회)
+        QueryResults<Member> fetchResults = query.selectFrom(member).fetchResults();
+        fetchResults.getTotal();
+        fetchResults.getResults();
+
+        long count = query.selectFrom(member).fetchCount();
+        //when
+        
+        //then
+        System.out.println(fetchResults.getTotal());
+        System.out.println(count);
+        assertThat(fetchResults.getTotal()).isEqualTo(count);
     }
 }
