@@ -4,6 +4,7 @@ import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,6 +21,9 @@ import static study.querydsl.domain.QTeam.*;
 @SpringBootTest
 @Transactional
 public class QuerydslBasicTest {
+
+    @Autowired
+    private EntityManagerFactory emf;
 
     @Autowired
     private EntityManager em;
@@ -235,5 +239,22 @@ public class QuerydslBasicTest {
         for (Tuple tuple : result) {
             System.out.println(tuple.toString());
         }
+    }
+
+    @Test
+    @DisplayName("")
+    public void fetchJoin() throws Exception{
+        //given
+        em.flush();
+        em.clear();
+
+        //when
+        Member findMember = query.selectFrom(member)
+                .join(member.team, team).fetchJoin()
+                .where(member.username.eq("member1"))
+                .fetchOne();
+
+        //then
+        assertThat(emf.getPersistenceUnitUtil().isLoaded(findMember.getTeam())).isTrue();
     }
 }
