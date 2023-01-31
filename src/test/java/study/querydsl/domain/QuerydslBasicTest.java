@@ -1,29 +1,25 @@
 package study.querydsl.domain;
 
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
-@Commit
-public class MemberTest {
-    
+public class QuerydslBasicTest {
+
     @Autowired
-    EntityManager em;
-    
-    @Test
-    @DisplayName("")
-    public void testEntity() throws Exception{
-        //given
+    private EntityManager em;
+
+    @BeforeEach
+    public void before(){
         Team team1 = new Team("teamA");
         Team team2 = new Team("teamB");
         em.persist(team1);
@@ -40,12 +36,29 @@ public class MemberTest {
 
         em.flush();
         em.clear();
+    }
+    
+    @Test
+    @DisplayName("")
+    public void startJPQL() throws Exception{
+        //given
         //when
-        List<Member> result = em.createQuery("select m from Member m", Member.class).getResultList();
+        Member find = em.createQuery("select m from Member m where m.username = :name", Member.class)
+                .setParameter("name", "member1").getSingleResult();
         //then
-        assertThat(result.get(0).toString()).isEqualTo(member1.toString());
-        assertThat(result.get(1).toString()).isEqualTo(member2.toString());
-        assertThat(result.get(2).toString()).isEqualTo(member3.toString());
-        assertThat(result.get(3).toString()).isEqualTo(member4.toString());
+        assertThat(find.getAge()).isEqualTo(10);
+        assertThat(find.getUsername()).isEqualTo("member1");
+    }
+
+    @Test
+    @DisplayName("")
+    public void startQuerydsl() throws Exception{
+        //given
+        JPAQueryFactory query = new JPAQueryFactory(em);
+        QMember m = new QMember("m");
+        //when
+        Member find = query.select(m).from(m).where(m.username.eq("member1")).fetchOne();
+        //then
+        assertThat(find.getUsername()).isEqualTo("member1");
     }
 }
