@@ -219,4 +219,21 @@ public class QuerydslBasicTest {
                 .extracting("username")
                 .containsExactly("teamA", "teamB");
     }
+
+    @Test
+    @DisplayName("")
+    public void join_on_filtering() throws Exception{
+        //given
+
+        //when
+        List<Tuple> result = query.select(member, team)
+                .from(member)
+                .leftJoin(member.team, team).on(team.name.eq("teamA"))
+                .fetch();
+
+        //then
+        for (Tuple tuple : result) {
+            System.out.println(tuple.toString());
+        }
+    }
 }
