@@ -108,4 +108,24 @@ public class QuerydslBasicTest {
         System.out.println(count);
         assertThat(fetchResults.getTotal()).isEqualTo(count);
     }
+
+    @Test
+    @DisplayName("")        
+    public void sort() throws Exception{
+        //given
+        em.persist(new Member(null, 100));
+        em.persist(new Member("member5", 100));
+        em.persist(new Member("member6", 100));
+        em.flush();
+        em.clear();
+        //when
+        List<Member> result = query.selectFrom(member)
+                .where(member.age.eq(100))
+                .orderBy(member.age.desc(), member.username.asc().nullsLast()).fetch();
+
+        //then
+        assertThat(result.get(0).getUsername()).isEqualTo("member5");
+        assertThat(result.get(1).getUsername()).isEqualTo("member6");
+        assertThat(result.get(2).getUsername()).isNull();
+    }
 }
