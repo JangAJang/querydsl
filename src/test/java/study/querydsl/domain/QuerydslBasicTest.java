@@ -1,6 +1,7 @@
 package study.querydsl.domain;
 
 import com.querydsl.core.QueryResults;
+import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -144,5 +145,25 @@ public class QuerydslBasicTest {
         //then
         assertThat(members.size()).isEqualTo(2);
 
+    }
+
+    @Test
+    @DisplayName("")
+    public void aggregation() throws Exception{
+        //given
+        List<Tuple> result = query.select(member.count(),
+                        member.age.sum(),
+                        member.age.avg(),
+                        member.age.max(),
+                        member.age.min())
+                .from(member).fetch();
+        //when
+        Tuple tuple = result.get(0);
+        //then
+        assertThat(tuple.get(member.count())).isEqualTo(4);
+        assertThat(tuple.get(member.age.sum())).isEqualTo(100);
+        assertThat(tuple.get(member.age.avg())).isEqualTo(25);
+        assertThat(tuple.get(member.age.max())).isEqualTo(40);
+        assertThat(tuple.get(member.age.min())).isEqualTo(10);
     }
 }
