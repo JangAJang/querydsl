@@ -18,8 +18,11 @@ public class QuerydslBasicTest {
     @Autowired
     private EntityManager em;
 
+    private JPAQueryFactory query;
+
     @BeforeEach
     public void before(){
+        query = new JPAQueryFactory(em);
         Team team1 = new Team("teamA");
         Team team2 = new Team("teamB");
         em.persist(team1);
@@ -54,10 +57,12 @@ public class QuerydslBasicTest {
     @DisplayName("")
     public void startQuerydsl() throws Exception{
         //given
-        JPAQueryFactory query = new JPAQueryFactory(em);
-        QMember m = new QMember("m");
+        QMember m1 = new QMember("m1");
         //when
-        Member find = query.select(m).from(m).where(m.username.eq("member1")).fetchOne();
+        Member find = query
+                .select(m1).from(m1)
+                .where(m1.username.eq("member1"))
+                .fetchOne();
         //then
         assertThat(find.getUsername()).isEqualTo("member1");
     }
