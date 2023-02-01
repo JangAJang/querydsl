@@ -3,6 +3,7 @@ package study.querydsl.domain;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -291,5 +292,21 @@ public class QuerydslBasicTest {
             System.out.println(member1.getAge());
             assertThat((double)member1.getAge()).isGreaterThanOrEqualTo(avg);
         }
+    }
+
+    @Test
+    @DisplayName("")
+    public void 서브쿼리_in() throws Exception{
+        //given
+        QMember sub = new QMember("sub");
+        //when
+        List<Member> result = query.selectFrom(member)
+                .where(member.age.in(JPAExpressions
+                        .select(sub.age)
+                        .from(sub)
+                        .where(sub.age.gt(10))
+                )).fetch();
+        //then
+        assertThat(result).extracting("age").containsExactly(20, 30, 40);
     }
 }
