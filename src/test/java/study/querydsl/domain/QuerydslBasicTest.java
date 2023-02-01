@@ -2,6 +2,7 @@ package study.querydsl.domain;
 
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.JPAExpressions;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import study.querydsl.dto.MemberDto;
+import study.querydsl.dto.UserDto;
 
 import java.util.List;
 
@@ -410,6 +412,30 @@ public class QuerydslBasicTest {
         //then
         for (MemberDto memberDto : result) {
             System.out.println(memberDto.toString());
+        }
+    }
+
+    @Test
+    @DisplayName("")
+    public void findUserDto() throws Exception{
+        //given
+        QMember ages = new QMember("ages");
+        //when
+        List<UserDto> result = query.select(Projections.constructor(UserDto.class,
+                        member.username.as("name"),
+                        new CaseBuilder()
+                                .when(member.age.between(0, 10)).then("한자리")
+                                .when(member.age.between(11, 20)).then("십대")
+                                .when(member.age.between(21, 30)).then("이십대")
+                                .when(member.age.between(31, 40)).then("삼십대")
+                                .otherwise("그 이상").as("ageField")
+                ))
+                .from(member)
+                .fetch();
+
+        //then
+        for (UserDto userDto : result) {
+            System.out.println(userDto.toString());
         }
     }
 }
