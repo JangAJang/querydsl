@@ -2,6 +2,7 @@ package study.querydsl.domain;
 
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -324,5 +325,38 @@ public class QuerydslBasicTest {
         for (Tuple tuple : result) {
             System.out.println(tuple.get(member.username) + ", " + tuple.get(member.age) + "%");
         }
+    }
+
+    @Test
+    @DisplayName("")
+    public void basicCase() throws Exception{
+        //given
+
+        //when
+        List<String> fetch = query.select(member.age
+                        .when(10).then("십세")
+                        .when(20).then("이십세")
+                        .otherwise("늙은이"))
+                .from(member)
+                .fetch();
+        //then
+        assertThat(fetch).containsExactly("십세", "이십세", "늙은이", "늙은이");
+    }
+    
+    @Test
+    @DisplayName("")        
+    public void complexCase() throws Exception{
+        //given
+        
+        //when
+        List<String> fetch = query.select(new CaseBuilder()
+                        .when(member.age.between(0, 20)).then("젊은이")
+                        .when(member.age.between(21, 40)).then("성인")
+                        .otherwise("노땅")
+                )
+                .from(member)
+                .fetch();
+        //then
+        assertThat(fetch).containsExactly("젊은이", "젊은이", "성인", "성인");
     }
 }
