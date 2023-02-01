@@ -1,12 +1,11 @@
 package study.querydsl.domain;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
-import com.querydsl.jpa.JPAExpressions;
-import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -454,5 +453,35 @@ public class QuerydslBasicTest {
         for (UserDto userDto : result) {
             System.out.println(userDto.toString());
         }
+    }
+    
+    @Test
+    @DisplayName("")        
+    public void dynamic_BooleanBuilder() throws Exception{
+        //given
+        String username = "member1";
+        int age = 10;
+
+        //when
+        List<Member> result = searchMember1(username, age);
+
+        //then
+        assertThat(result.size()).isEqualTo(1);
+
+    }
+
+    private List<Member> searchMember1(String usernameCond, Integer ageCond) {
+
+        BooleanBuilder booleanBuilder = new BooleanBuilder();
+        if(usernameCond != null){
+            booleanBuilder.and(member.username.eq(usernameCond));
+        }
+        if(ageCond != null){
+            booleanBuilder.and(member.age.eq(ageCond));
+        }
+
+        return query.selectFrom(member)
+                .where(booleanBuilder)
+                .fetch();
     }
 }
