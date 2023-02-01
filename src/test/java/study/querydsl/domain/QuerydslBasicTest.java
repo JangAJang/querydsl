@@ -6,6 +6,7 @@ import com.querydsl.core.Tuple;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
 import study.querydsl.dto.MemberDto;
 import study.querydsl.dto.UserDto;
@@ -28,6 +30,7 @@ import static study.querydsl.domain.QTeam.*;
 
 @SpringBootTest
 @Transactional
+@Commit
 public class QuerydslBasicTest {
 
     @Autowired
@@ -506,13 +509,29 @@ public class QuerydslBasicTest {
                 .fetch();
     }
 
-    private Predicate usernameEq(String nameCond) {
+    private BooleanExpression usernameEq(String nameCond) {
         if(nameCond == null) return null;
         return member.username.eq(nameCond);
     }
 
-    private Predicate ageEq(Integer ageCond) {
+    private BooleanExpression ageEq(Integer ageCond) {
         if(ageCond == null) return null;
         return member.age.eq(ageCond);
+    }
+
+    @Test
+    @DisplayName("")        
+    public void bulkUpdate() throws Exception{
+        //given
+        
+        //when
+        long count = query.update(member)
+                .set(member.username, "비회원")
+                .where(member.age.lt(21))
+                .execute();
+        em.flush();
+        em.clear();
+        //then
+        assertThat(count).isEqualTo(2);
     }
 }
