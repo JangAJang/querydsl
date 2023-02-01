@@ -4,6 +4,7 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.ExpressionUtils;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -483,5 +484,35 @@ public class QuerydslBasicTest {
         return query.selectFrom(member)
                 .where(booleanBuilder)
                 .fetch();
+    }
+    
+    @Test
+    @DisplayName("")        
+    public void dynamic_Where다중() throws Exception{
+        //given
+        String username = "member1";
+        int age = 10;
+
+        //when
+        List<Member> result = searchMember2(username, age);
+
+        //then
+        assertThat(result.size()).isEqualTo(1);
+    }
+
+    private List<Member> searchMember2(String nameCond, Integer ageCond) {
+        return query.selectFrom(member)
+                .where(usernameEq(nameCond), ageEq(ageCond))
+                .fetch();
+    }
+
+    private Predicate usernameEq(String nameCond) {
+        if(nameCond == null) return null;
+        return member.username.eq(nameCond);
+    }
+
+    private Predicate ageEq(Integer ageCond) {
+        if(ageCond == null) return null;
+        return member.age.eq(ageCond);
     }
 }
