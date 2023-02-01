@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.querydsl.jpa.JPAExpressions.*;
 import static org.assertj.core.api.Assertions.*;
 import static study.querydsl.domain.QMember.*;
 import static study.querydsl.domain.QTeam.*;
@@ -268,8 +269,8 @@ public class QuerydslBasicTest {
 
         //when
         List<Member> fetch = query.selectFrom(member)
-                .where(member.age.eq(JPAExpressions  //서브쿼리문 만드는법 JPAExpressions.하고 뒤에 작성
-                        .select(memberSub.age.max())
+                .where(member.age.eq(//서브쿼리문 만드는법 JPAExpressions.하고 뒤에 작성
+                        select(memberSub.age.max())
                         .from(memberSub)
                 )).fetch();
 
@@ -284,7 +285,7 @@ public class QuerydslBasicTest {
         QMember memberSub = new QMember("memberSub");
         //when
         List<Member> moreThanAvg = query.selectFrom(member)
-                .where(member.age.goe(JPAExpressions.select(memberSub.age.avg()).from(memberSub))).fetch();
+                .where(member.age.goe(select(memberSub.age.avg()).from(memberSub))).fetch();
         double avg = query.select(member.age.avg()).from(member).fetchOne();
         System.out.println("average = " + avg);
         //then
@@ -301,12 +302,27 @@ public class QuerydslBasicTest {
         QMember sub = new QMember("sub");
         //when
         List<Member> result = query.selectFrom(member)
-                .where(member.age.in(JPAExpressions
-                        .select(sub.age)
+                .where(member.age.in(select(sub.age)
                         .from(sub)
                         .where(sub.age.gt(10))
                 )).fetch();
         //then
         assertThat(result).extracting("age").containsExactly(20, 30, 40);
+    }
+
+    @Test
+    @DisplayName("")
+    public void 서브쿼리_select() throws Exception{
+        //given
+        QMember sub = new QMember("sub");
+        //when
+        List<Tuple> result = query
+                .select(member.username, member.age.divide(select(sub.age.avg()).from(sub)).multiply(100).as(member.age))
+                .from(member)
+                .fetch();
+        //then
+        for (Tuple tuple : result) {
+            System.out.println(tuple.get(member.username) + ", " + tuple.get(member.age) + "%");
+        }
     }
 }
