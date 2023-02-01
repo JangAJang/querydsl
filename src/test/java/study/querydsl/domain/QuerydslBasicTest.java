@@ -534,4 +534,22 @@ public class QuerydslBasicTest {
         //then
         assertThat(count).isEqualTo(2);
     }
+
+    @Test
+    @DisplayName("")
+    public void bulkAdd() throws Exception{
+        //given
+        List<Member> beforeMembers = query.selectFrom(member).fetch();
+        //when
+        query.update(member).set(member.age, member.age.add(1)).execute();
+        List<Member> whileMember = query.selectFrom(member).fetch();
+        em.flush();
+        em.clear();
+        //then
+        List<Member> after = query.selectFrom(member).fetch();
+        for(int index = 0; index < beforeMembers.size(); index++){
+            assertThat(after.get(0).getAge() - beforeMembers.get(0).getAge()).isEqualTo(1);
+            assertThat(whileMember.get(0).getAge() - beforeMembers.get(0).getAge()).isEqualTo(0);
+        }
+    }
 }
