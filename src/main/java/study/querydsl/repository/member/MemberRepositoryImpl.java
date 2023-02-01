@@ -1,10 +1,14 @@
 package study.querydsl.repository.member;
 
+import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import study.querydsl.domain.QMember;
 import study.querydsl.domain.QTeam;
 import study.querydsl.dto.MemberSearchCondition;
@@ -61,5 +65,28 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom{
         return member.username.eq(username);
     }
 
+    @Override
+    public Page<MemberTeamDto> searchPageSimple(MemberSearchCondition condition, Pageable pageable) {
+        QueryResults<MemberTeamDto> result = query.select(new QMemberTeamDto(
+                        member.id.as("memberId"),
+                        member.username,
+                        member.age,
+                        team.id.as("teamId"),
+                        team.name.as("teamName")))
+                .from(member)
+                .leftJoin(member.team, team)
+                .where(usernameEq(condition.getUsername()),
+                        ageLoe(condition.getAgeLoe()),
+                        ageGoe(condition.getAgeGoe()),
+                        teamNameEq(condition.getTeamName()))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetchResults();
+        return new PageImpl<MemberTeamDto>(result.getResults(), pageable, result.getTotal());
+    }
 
+    @Override
+    public List<MemberTeamDto> searchPageComplex(MemberSearchCondition condition, Pageable pageable) {
+        return null;
+    }
 }
