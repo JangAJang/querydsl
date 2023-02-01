@@ -1,8 +1,9 @@
 package study.querydsl.dto;
 
-import lombok.Getter;
+import lombok.*;
 
-@Getter
+@NoArgsConstructor
+@ToString(of = {"username", "age"})
 public class MemberDto {
 
     private String username;

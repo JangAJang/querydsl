@@ -2,6 +2,7 @@ package study.querydsl.domain;
 
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+import study.querydsl.dto.MemberDto;
 
 import java.util.List;
 
@@ -358,5 +360,39 @@ public class QuerydslBasicTest {
                 .fetch();
         //then
         assertThat(fetch).containsExactly("젊은이", "젊은이", "성인", "성인");
+    }
+
+    @Test
+    @DisplayName("")        
+    public void findDtoBySetter() throws Exception{
+        //given
+
+        //when
+        List<MemberDto> result = query.select(Projections.bean(MemberDto.class, member.username, member.age))
+                .from(member)
+                .fetch();
+        //Projections.bean을 사용하면 setter가 존재해야 한다. 하지만 setter를 쓰는 것 자체가 좋지 않다.
+
+        //then
+        for (MemberDto memberDto : result) {
+            System.out.println(memberDto.toString());
+        }
+    }
+
+    @Test
+    @DisplayName("")
+    public void findDtoByField() throws Exception{
+        //given
+
+        //when
+        List<MemberDto> result = query.select(Projections.fields(MemberDto.class, member.username, member.age))
+                .from(member)
+                .fetch();
+        //Projections.bean을 사용하면 setter가 존재해야 한다. 하지만 setter를 쓰는 것 자체가 좋지 않다.
+
+        //then
+        for (MemberDto memberDto : result) {
+            System.out.println(memberDto.toString());
+        }
     }
 }
