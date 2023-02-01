@@ -275,4 +275,21 @@ public class QuerydslBasicTest {
         //then
         assertThat(fetch).extracting("age").containsExactly(40);
     }
+
+    @Test
+    @DisplayName("")
+    public void 나이가_평균_이상을_조회하는_서브쿼리() throws Exception{
+        //given
+        QMember memberSub = new QMember("memberSub");
+        //when
+        List<Member> moreThanAvg = query.selectFrom(member)
+                .where(member.age.goe(JPAExpressions.select(memberSub.age.avg()).from(memberSub))).fetch();
+        double avg = query.select(member.age.avg()).from(member).fetchOne();
+        System.out.println("average = " + avg);
+        //then
+        for (Member member1 : moreThanAvg) {
+            System.out.println(member1.getAge());
+            assertThat((double)member1.getAge()).isGreaterThanOrEqualTo(avg);
+        }
+    }
 }
