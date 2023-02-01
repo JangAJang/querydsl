@@ -16,7 +16,6 @@ import java.util.List;
 import static study.querydsl.domain.QMember.*;
 import static study.querydsl.domain.QTeam.*;
 
-@RequiredArgsConstructor
 public class MemberRepositoryImpl implements MemberRepositoryCustom{
 
     private final JPAQueryFactory query;
@@ -35,12 +34,10 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom{
                 team.name.as("teamName")))
                 .from(member)
                 .leftJoin(member.team, team)
-                .where(
-                        usernameEq(condition.getUsername()),
+                .where(usernameEq(condition.getUsername()),
                         ageLoe(condition.getAgeLoe()),
                         ageGoe(condition.getAgeGoe()),
-                        teamNameEq(condition.getTeamName())
-                        )
+                        teamNameEq(condition.getTeamName()))
                 .fetch();
     }
 

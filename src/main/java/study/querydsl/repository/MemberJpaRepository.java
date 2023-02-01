@@ -62,8 +62,7 @@ public class MemberJpaRepository {
                         member.username,
                         member.age,
                         team.id.as("teamId"),
-                        team.name.as("teamName")
-                ))
+                        team.name.as("teamName")))
                 .from(member)
                 .leftJoin(member.team, team)
                 //.where(createBuilderForSearch(condition))
