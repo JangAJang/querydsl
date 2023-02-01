@@ -1,6 +1,7 @@
 package study.querydsl.repository;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import org.springframework.stereotype.Repository;
@@ -54,7 +55,7 @@ public class MemberJpaRepository {
         queryFactory.delete(member).where(member.id.eq(deleteMember.getId())).execute();
     }
 
-    public List<MemberTeamDto> searchByBuilder(MemberSearchCondition memberSearchCondition){
+    public List<MemberTeamDto> searchByBuilder(MemberSearchCondition condition){
         return queryFactory
                 .select(new QMemberTeamDto(
                         member.id.as("memberId"),
@@ -65,8 +66,32 @@ public class MemberJpaRepository {
                 ))
                 .from(member)
                 .leftJoin(member.team, team)
-                .where(createBuilderForSearch(memberSearchCondition))
+                //.where(createBuilderForSearch(condition))
+                .where(usernameEq(condition.getUsername()),
+                        teamNameEq(condition.getTeamName()),
+                        memberAgeGoe(condition.getAgeGoe()),
+                        memberAgeLoe(condition.getAgeLoe()))
                 .fetch();
+    }
+
+    private Predicate memberAgeLoe(Integer ageLoe) {
+        if(ageLoe == null) return null;
+        return member.age.loe(ageLoe);
+    }
+
+    private Predicate memberAgeGoe(Integer ageGoe) {
+        if(ageGoe == null) return null;
+        return member.age.goe(ageGoe);
+    }
+
+    private Predicate usernameEq(String username) {
+        if(username == null || username.isEmpty() || username.isBlank()) return null;
+        return member.username.eq(username);
+    }
+
+    private Predicate teamNameEq(String teamName) {
+        if(teamName == null || teamName.isEmpty() || teamName.isBlank()) return null;
+        return team.name.eq(teamName);
     }
 
     private BooleanBuilder createBuilderForSearch(MemberSearchCondition condition){
