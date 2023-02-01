@@ -2,6 +2,7 @@ package study.querydsl.domain;
 
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -256,5 +257,22 @@ public class QuerydslBasicTest {
 
         //then
         assertThat(emf.getPersistenceUnitUtil().isLoaded(findMember.getTeam())).isTrue();
+    }
+
+    @Test
+    @DisplayName("")
+    public void subQuery() throws Exception{
+        //given
+        QMember memberSub = new QMember("memberSub");
+
+        //when
+        List<Member> fetch = query.selectFrom(member)
+                .where(member.age.eq(JPAExpressions  //서브쿼리문 만드는법 JPAExpressions.하고 뒤에 작성
+                        .select(memberSub.age.max())
+                        .from(memberSub)
+                )).fetch();
+
+        //then
+        assertThat(fetch).extracting("age").containsExactly(40);
     }
 }
