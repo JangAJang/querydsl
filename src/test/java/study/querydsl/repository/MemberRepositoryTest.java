@@ -83,4 +83,21 @@ class MemberRepositoryTest {
         assertThat(result.get(0).getUsername()).isEqualTo("member4");
     }
 
+    @Test
+    @DisplayName("")
+    public void pagingSimpleTest() throws Exception{
+        //given
+
+        //when
+        MemberSearchCondition condition = new MemberSearchCondition();
+        PageRequest page = PageRequest.of(0, 3);
+
+        Page<MemberTeamDto> result = memberRepository.searchPageSimple(condition, page);
+
+        //then
+        assertThat(result.getSize()).isEqualTo(3);
+        assertThat(result.getContent()).extracting("username").containsExactly("member1", "member2", "member3");
+    }
+
+
 }
