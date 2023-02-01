@@ -395,4 +395,21 @@ public class QuerydslBasicTest {
             System.out.println(memberDto.toString());
         }
     }
+
+    @Test
+    @DisplayName("")
+    public void findDtoByConstructor() throws Exception{
+        //given
+
+        //when
+        List<MemberDto> result = query.select(Projections.constructor(MemberDto.class, member.username, member.age))
+                .from(member)
+                .fetch();
+        //Projections.bean을 사용하면 setter가 존재해야 한다. 하지만 setter를 쓰는 것 자체가 좋지 않다.
+
+        //then
+        for (MemberDto memberDto : result) {
+            System.out.println(memberDto.toString());
+        }
+    }
 }
