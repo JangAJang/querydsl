@@ -438,4 +438,21 @@ public class QuerydslBasicTest {
             System.out.println(userDto.toString());
         }
     }
+    
+    @Test
+    @DisplayName("")        
+    public void findUserDto2() throws Exception{
+        //given
+        QMember sub = new QMember("sub");
+        //when
+        List<UserDto> result = query.select(Projections.constructor(UserDto.class,
+                member.username.as("name"),
+                ExpressionUtils.as(select(sub.age.max()).from(sub), "ageField")
+        )).from(member).fetch();
+
+        //then
+        for (UserDto userDto : result) {
+            System.out.println(userDto.toString());
+        }
+    }
 }

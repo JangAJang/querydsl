@@ -14,4 +14,11 @@ public class UserDto {
         this.name = name;
         this.ageField = ageField;
     }
+
+    public UserDto(String name, int ageField) {
+        this.name = name;
+        this.ageField = Integer.toString(ageField);
+    }
+
+
 }
