@@ -86,7 +86,40 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom{
     }
 
     @Override
-    public List<MemberTeamDto> searchPageComplex(MemberSearchCondition condition, Pageable pageable) {
-        return null;
+    public Page<MemberTeamDto> searchPageComplex(MemberSearchCondition condition, Pageable pageable) {
+        List<MemberTeamDto> result = getPageData(condition, pageable);
+        long total = countTotal(condition);
+        return new PageImpl<MemberTeamDto>(result, pageable, total);
+    }
+
+    private long countTotal(MemberSearchCondition condition) {
+        return query
+                .selectFrom(member)
+                .leftJoin(member.team, team)
+                .where(usernameEq(
+                                condition.getUsername()),
+                        ageLoe(condition.getAgeLoe()),
+                        ageGoe(condition.getAgeGoe()),
+                        teamNameEq(condition.getTeamName()))
+                .fetchCount();
+    }
+
+    private List<MemberTeamDto> getPageData(MemberSearchCondition condition, Pageable pageable) {
+        List<MemberTeamDto> result = query.select(new QMemberTeamDto(
+                        member.id.as("memberId"),
+                        member.username,
+                        member.age,
+                        team.id.as("teamId"),
+                        team.name.as("teamName")))
+                .from(member)
+                .leftJoin(member.team, team)
+                .where(usernameEq(condition.getUsername()),
+                        ageLoe(condition.getAgeLoe()),
+                        ageGoe(condition.getAgeGoe()),
+                        teamNameEq(condition.getTeamName()))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+        return result;
     }
 }
