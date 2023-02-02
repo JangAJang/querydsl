@@ -8,12 +8,18 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.JpaEntityInformationSupport;
 import org.springframework.data.jpa.repository.support.Querydsl;
 import org.springframework.data.querydsl.SimpleEntityPathResolver;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.Assert;
+
+import java.util.List;
+import java.util.function.Function;
 
 @Repository
 public class Querydsl4Repository {
@@ -65,5 +71,13 @@ public class Querydsl4Repository {
 
     protected <T> JPAQuery<T> selectFrom(EntityPath<T> from){
         return getQueryFactory().selectFrom(from);
+    }
+
+    protected <T>Page<T> applyPagination(Pageable pageable, Function<JPAQueryFactory, JPAQuery> function){
+        JPAQuery jpaContentQuery = function.apply(getQueryFactory());
+        List<T> content = getQuerydsl().applyPagination(pageable, jpaContentQuery).fetch();
+
+        JPAQuery countResult = function.apply(getQueryFactory());
+        return PageableExecutionUtils.getPage(content, pageable, countResult::fetchCount);
     }
 }
