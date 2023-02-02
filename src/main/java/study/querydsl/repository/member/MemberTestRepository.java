@@ -56,6 +56,26 @@ public class MemberTestRepository extends Querydsl4Repository {
                 ));
     }
 
+    public Page<Member> applyPagination2(MemberSearchCondition condition, Pageable pageable){
+        return applyPagination(pageable, contentQuery->
+                contentQuery
+                        .selectFrom(member)
+                        .leftJoin(member.team, team)
+                        .where(usernameEq(condition.getUsername()),
+                        ageLoe(condition.getAgeLoe()),
+                        ageGoe(condition.getAgeGoe()),
+                        teamNameEq(condition.getTeamName())
+                ),
+                countQuery->
+                countQuery.select(member.id).from(member)
+                        .leftJoin(member.team, team)
+                        .where(usernameEq(condition.getUsername()),
+                                ageLoe(condition.getAgeLoe()),
+                                ageGoe(condition.getAgeGoe()),
+                                teamNameEq(condition.getTeamName())
+                        ));
+    }
+
     private Predicate teamNameEq(String teamName) {
         if(teamName == null || teamName.isEmpty() || teamName.isBlank()) return null;
         return team.name.eq(teamName);
