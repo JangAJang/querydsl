@@ -41,6 +41,16 @@ public class MemberTestRepository extends Querydsl4Repository {
         return PageableExecutionUtils.getPage(fetch, pageable, members::fetchCount);
     }
 
+    //위의 메서드와 동일한 기능을 가진다.
+    public Page<Member> applyPagination(MemberSearchCondition condition, Pageable pageable){
+        return applyPagination(pageable, query->
+                query.selectFrom(member).where(usernameEq(condition.getUsername()),
+                        ageLoe(condition.getAgeLoe()),
+                        ageGoe(condition.getAgeGoe()),
+                        teamNameEq(condition.getTeamName())
+                ));
+    }
+
     private Predicate teamNameEq(String teamName) {
         if(teamName == null || teamName.isEmpty() || teamName.isBlank()) return null;
         return team.name.eq(teamName);
