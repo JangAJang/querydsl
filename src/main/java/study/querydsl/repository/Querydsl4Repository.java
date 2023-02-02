@@ -80,4 +80,16 @@ public class Querydsl4Repository {
         JPAQuery countResult = function.apply(getQueryFactory());
         return PageableExecutionUtils.getPage(content, pageable, countResult::fetchCount);
     }
+
+
+
+    protected <T>Page<T> applyPagination(Pageable pageable,
+                                         Function<JPAQueryFactory, JPAQuery> contentQuery,
+                                         Function<JPAQueryFactory, JPAQuery> countQuery){
+        JPAQuery jpaContentQuery = contentQuery.apply(getQueryFactory());
+        List<T> content = getQuerydsl().applyPagination(pageable, jpaContentQuery).fetch();
+
+        JPAQuery countResult = countQuery.apply(getQueryFactory());
+        return PageableExecutionUtils.getPage(content, pageable, countResult::fetchCount);
+    }
 }
