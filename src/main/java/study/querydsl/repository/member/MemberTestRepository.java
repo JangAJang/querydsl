@@ -8,6 +8,7 @@ import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 import study.querydsl.domain.Member;
 import study.querydsl.domain.QMember;
+import study.querydsl.domain.QTeam;
 import study.querydsl.dto.MemberSearchCondition;
 import study.querydsl.repository.Querydsl4Repository;
 
@@ -33,6 +34,7 @@ public class MemberTestRepository extends Querydsl4Repository {
 
     public Page<Member> searchPageByApplyPage(MemberSearchCondition memberSearchCondition, Pageable pageable){
         JPAQuery<Member> members = selectFrom(member)
+                .leftJoin(member.team, team)
                 .where(usernameEq(memberSearchCondition.getUsername()),
                         ageLoe(memberSearchCondition.getAgeLoe()),
                         ageGoe(memberSearchCondition.getAgeGoe()),
@@ -44,7 +46,10 @@ public class MemberTestRepository extends Querydsl4Repository {
     //위의 메서드와 동일한 기능을 가진다.
     public Page<Member> applyPagination(MemberSearchCondition condition, Pageable pageable){
         return applyPagination(pageable, query->
-                query.selectFrom(member).where(usernameEq(condition.getUsername()),
+                query
+                        .selectFrom(member)
+                        .leftJoin(member.team, team)
+                        .where(usernameEq(condition.getUsername()),
                         ageLoe(condition.getAgeLoe()),
                         ageGoe(condition.getAgeGoe()),
                         teamNameEq(condition.getTeamName())
