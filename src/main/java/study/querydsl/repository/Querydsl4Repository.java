@@ -1,7 +1,9 @@
 package study.querydsl.repository;
 
 import com.querydsl.core.types.EntityPath;
+import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.dsl.PathBuilder;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
@@ -43,5 +45,25 @@ public class Querydsl4Repository {
         Assert.notNull(entityManager, "entityManager must not be null");
         Assert.notNull(querydsl, "querydsl must not be null");
         Assert.notNull(queryFactory, "queryFactory must not be null");
+    }
+
+    public Querydsl getQuerydsl() {
+        return querydsl;
+    }
+
+    public EntityManager getEntityManager() {
+        return entityManager;
+    }
+
+    public JPAQueryFactory getQueryFactory() {
+        return queryFactory;
+    }
+
+    protected <T> JPAQuery<T> select(Expression<T> expr){
+        return getQueryFactory().select(expr);
+    }
+
+    protected <T> JPAQuery<T> selectFrom(EntityPath<T> from){
+        return getQueryFactory().selectFrom(from);
     }
 }
